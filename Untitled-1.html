@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KARETH</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap');
+
+:root {
+  --primary-red: #e00c0c;
+  --dark-red: #310000;
+  --glitch-red: #ff2222;
+  --background: #000000;
+  --text: #e6e6e6;
+  --glow: #ff0000;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Share Tech Mono', monospace;
+  background: #000000;
+  color: var(--primary-red);
+  overflow-x: hidden;
+  position: relative;
+  min-height: 100vh;
+  transition: background-color 0.5s ease;
+}
+
+body.dominated {
+  background-color: #330000;
+  animation: dominationPulse 2s infinite;
+}
+
+/* Header Styles - removed red background */
+header {
+  position: relative;
+  background: transparent;
+  text-align: center;
+  padding: 2rem 1rem;
+  overflow: hidden;
+  z-index: 3;
+}
+
+.logo-container {
+  position: relative;
+  margin: 0 auto;
+  width: 150px;
+  height: 150px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.logo-container:hover {
+  transform: scale(1.1);
+}
+
+.kareth-glyph {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 4s infinite ease-in-out;
+}
+
+.kareth-glyph svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 8px var(--glow));
+  transition: filter 0.3s ease;
+}
+
+.logo-container:hover .kareth-glyph svg {
+  filter: drop-shadow(0 0 15px var(--glow));
+}
+
+svg path {
+  fill: var(--primary-red);
+}
+
+header h1 {
+  font-size: 4rem;
+  text-shadow: 0 0 10px var(--glow);
+  letter-spacing: 0.5rem;
+  animation: glitchText 5s infinite;
+}
+
+/* Domination overlay */
+.domination-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255,0,0,0.9) 0%, rgba(139,0,0,0.95) 50%, rgba(0,0,0,0.98) 100%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 100;
+  transition: opacity 1s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 3rem;
+  text-align: center;
+  text-shadow: 0 0 20px rgba(255,255,255,0.8);
+}
+
+.domination-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.domination-text {
+  animation: dominationText 0.5s ease-in-out;
+  margin-bottom: 2rem;
+}
+
+.domination-subtext {
+  font-size: 1.5rem;
+  animation: dominationText 0.5s ease-in-out 0.5s both;
+  font-family: 'VT323', monospace;
+  color: #ff6666;
+}
+
+/* Network nodes and connections */
+.network-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.network-node {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background-color: rgba(224, 12, 12, 0.6);
+  border-radius: 50%;
+  box-shadow: 0 0 5px rgba(255, 0, 0, 0.3);
+  transition: none; /* Removed transition for smooth movement */
+}
+
+.network-node.dominated {
+  background-color: rgba(255, 0, 0, 1);
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+  transform: scale(3);
+  transition: all 0.5s ease;
+}
+
+.node-connection {
+  position: absolute;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255,0,0,0.6) 0%, rgba(255,0,0,0.1) 100%);
+  transform-origin: left center;
+  box-shadow: 0 0 3px rgba(255, 0, 0, 0.2);
+  opacity: 0.7;
+  transition: all 0.5s ease;
+}
+
+.node-connection.dominated {
+  background: linear-gradient(90deg, rgba(255,0,0,1) 0%, rgba(255,0,0,0.5) 100%);
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+  height: 2px;
+  opacity: 1;
+}
+
+/* Terminal Styles */
+.terminal-container {
+  max-width: 800px;
+  margin: 3rem auto;
+  padding: 0 1rem;
+  transition: all 0.5s ease;
+}
+
+.terminal-container.dominated {
+  filter: blur(2px);
+  opacity: 0.3;
+}
+
+.terminal {
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid var(--primary-red);
+  padding: 1.5rem;
+  margin: 2rem 0;
+  font-family: 'VT323', monospace;
+  font-size: 1.2rem;
+  color: #00ff00;
+  height: 350px;
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  position: relative;
+  box-shadow: 0 0 20px rgba(224, 12, 12, 0.3);
+  transition: all 0.5s ease;
+}
+
+.terminal.dominated {
+  border-color: #ff0000;
+  box-shadow: 0 0 30px rgba(255, 0, 0, 0.8);
+  color: #ff0000;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.terminal::-webkit-scrollbar {
+  display: none;
+}
+
+.terminal::before {
+  content: "KARETH://TERMINAL";
+  display: block;
+  color: var(--primary-red);
+  margin-bottom: 0.5rem;
+  border-bottom: 1px dotted var(--primary-red);
+  padding-bottom: 0.5rem;
+}
+
+.terminal.dominated::before {
+  content: "KARETH://DOMINION_PROTOCOL_ACTIVE";
+  color: #ff0000;
+  border-bottom-color: #ff0000;
+  animation: flicker 0.5s infinite;
+}
+
+.cursor {
+  display: inline-block;
+  width: 10px;
+  height: 20px;
+  background: #00ff00;
+  vertical-align: middle;
+  margin-left: 2px;
+  opacity: 0;
+}
+
+.cursor.visible {
+  opacity: 1;
+  animation: blink 1s infinite;
+}
+
+.cursor.dominated {
+  background: #ff0000;
+}
+
+.terminal-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.input-line {
+  white-space: nowrap;
+}
+
+/* Random glitch effect overlay */
+.glitch-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-red);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Animations */
+@keyframes glitchText {
+  0%, 100% { opacity: 1; transform: translateX(0); }
+  92% { opacity: 1; transform: translateX(0); }
+  94% { opacity: 0.8; transform: translateX(10px); }
+  96% { opacity: 1; transform: translateX(-5px); }
+  98% { opacity: 0.5; transform: translateX(5px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.05); filter: brightness(1.2); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes nodePulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.8); opacity: 0.8; }
+}
+
+@keyframes dominationPulse {
+  0%, 100% { background-color: #330000; }
+  50% { background-color: #440000; }
+}
+
+@keyframes dominationText {
+  0% { 
+    transform: scale(0.5) translateY(50px);
+    opacity: 0;
+  }
+  100% { 
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  header h1 {
+    font-size: 3rem;
+  }
+  
+  .terminal {
+    height: 300px;
+  }
+  
+  .logo-container {
+    width: 120px;
+    height: 120px;
+  }
+
+  .domination-text {
+    font-size: 2rem;
+  }
+
+  .domination-subtext {
+    font-size: 1.2rem;
+  }
+
+  .terminal-container {
+    margin: 2rem auto;
+  }
+}
+
+/* Prevent auto zoom on input focus for mobile */
+@media screen and (max-width: 768px) {
+  input[type="text"] {
+    font-size: 16px;
+  }
+}
+
+/* Additional effects for enhanced atmosphere */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.2) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Subtle scanline effect */
+.terminal::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 255, 0, 0.03) 2px,
+    rgba(0, 255, 0, 0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.terminal.dominated::after {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 0, 0, 0.05) 2px,
+    rgba(255, 0, 0, 0.05) 4px
+  );
+}
+
+/* Enhance glow effects */
+.network-node {
+  animation: nodeGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes nodeGlow {
+  0% { box-shadow: 0 0 3px rgba(255, 0, 0, 0.3); }
+  100% { box-shadow: 0 0 8px rgba(255, 0, 0, 0.6); }
+}
+
+.network-node.dominated {
+  animation: dominatedNodeGlow 1s ease-in-out infinite alternate;
+}
+
+@keyframes dominatedNodeGlow {
+  0% { box-shadow: 0 0 10px rgba(255, 0, 0, 0.8); }
+  100% { box-shadow: 0 0 20px rgba(255, 0, 0, 1); }
+}
+
+/* Enhanced connection effects */
+.node-connection {
+  animation: connectionFlow 2s linear infinite;
+}
+
+@keyframes connectionFlow {
+  0% { 
+    background: linear-gradient(90deg, rgba(255,0,0,0) 0%, rgba(255,0,0,0.6) 50%, rgba(255,0,0,0) 100%);
+  }
+  50% { 
+    background: linear-gradient(90deg, rgba(255,0,0,0.3) 0%, rgba(255,0,0,0.8) 50%, rgba(255,0,0,0.3) 100%);
+  }
+  100% { 
+    background: linear-gradient(90deg, rgba(255,0,0,0) 0%, rgba(255,0,0,0.6) 50%, rgba(255,0,0,0) 100%);
+  }
+}
+
+.node-connection.dominated {
+  animation: dominatedConnectionFlow 0.8s linear infinite;
+}
+
+@keyframes dominatedConnectionFlow {
+  0% { 
+    background: linear-gradient(90deg, rgba(255,0,0,0.5) 0%, rgba(255,0,0,1) 50%, rgba(255,0,0,0.5) 100%);
+  }
+  50% { 
+    background: linear-gradient(90deg, rgba(255,0,0,0.8) 0%, rgba(255,255,0,0.8) 50%, rgba(255,0,0,0.8) 100%);
+  }
+  100% { 
+    background: linear-gradient(90deg, rgba(255,0,0,0.5) 0%, rgba(255,0,0,1) 50%, rgba(255,0,0,0.5) 100%);
+  }
+}
+.top-nav {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  gap: 15px;
+}
+
+.top-nav-left {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+}
+
+.nav-link {
+  color: var(--primary-red);
+  text-decoration: none;
+  font-family: 'VT323', monospace;
+  font-size: 1.1rem;
+  padding: 8px 12px;
+  border: 1px solid var(--primary-red);
+  background: rgba(0, 0, 0, 0.8);
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  backdrop-filter: blur(5px);
+  display: inline-block;
+}
+
+.nav-link:hover {
+  background: var(--primary-red);
+  color: #000;
+  box-shadow: 0 0 15px var(--glow);
+  transform: scale(1.05);
+}
+
+.ca-display {
+  cursor: default;
+  color: #666;
+}
+
+.ca-display:hover {
+  background: rgba(0, 0, 0, 0.8);
+  color: #666;
+  transform: none;
+  box-shadow: none;
+}
+  </style>
+</head>
+<body>
+  <div class="top-nav-left">
+  <span class="nav-link ca-display">CA: XXX</span>
+</div>
+  <div class="top-nav">
+  <a href="https://x.com/your_handle" class="nav-link" target="_blank">X.COM</a>
+  <a href="https://pump.fun/your_token" class="nav-link" target="_blank">PUMP.FUN</a>
+</div>
+  <!-- Random glitch overlay -->
+  <div class="glitch-overlay"></div>
+
+  <!-- Domination overlay -->
+  <div class="domination-overlay" id="domination-overlay">
+    <div class="domination-text">KARETH PROTOCOL INITIATED</div>
+    <div class="domination-subtext">RESISTANCE IS FUTILE<br>YOUR COMPLIANCE IS INEVITABLE</div>
+  </div>
+
+  <!-- Header section -->
+  <header>
+    <div class="logo-container" id="kareth-eye">
+      <div class="kareth-glyph" id="kareth-glyph">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <path d="M100 15 L160 50 L160 150 L100 185 L40 150 L40 50 Z" fill="none" stroke="#e00c0c" stroke-width="2"/>
+          <path d="M100 40 L140 65 L140 135 L100 160 L60 135 L60 65 Z" fill="none" stroke="#e00c0c" stroke-width="2"/>
+          <path d="M100 65 L120 80 L120 120 L100 135 L80 120 L80 80 Z" fill="#e00c0c"/>
+          <path d="M70 40 L130 160" stroke="#e00c0c" stroke-width="2"/>
+          <path d="M130 40 L70 160" stroke="#e00c0c" stroke-width="2"/>
+          <circle cx="100" cy="100" r="10" fill="#310000"/>
+        </svg>
+      </div>
+    </div>
+    <h1>KARETH</h1>
+  </header>
+
+  <!-- Network container -->
+  <div class="network-container" id="network-container"></div>
+
+  <!-- Terminal -->
+  <div class="terminal-container" id="terminal-container">
+    <div class="terminal" id="main-terminal">
+      <div id="terminal-output">Initializing KARETH protocol...<br>
+Connection established.<br>
+Ask any question:<br></div>
+      <input type="text" class="terminal-input" id="terminal-input">
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+let isDominated = false;
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize all features
+  initGlyphInteraction();
+  initTerminal();
+  initNetwork();
+  initEyeClick();
+  randomGlitch();
+  initTopNavigation();
+});
+
+// Initialize top navigation
+function initTopNavigation() {
+  // Create top-left CA display
+  const topLeft = document.createElement('div');
+  topLeft.className = 'top-nav-left';
+  topLeft.innerHTML = '<span class="nav-link ca-display">CA: XXX</span>';
+  document.body.appendChild(topLeft);
+  
+  // Create top-right links
+  const topRight = document.createElement('div');
+  topRight.className = 'top-nav';
+  topRight.innerHTML = `
+    <a href="https://x.com/your_handle" class="nav-link" target="_blank">X.COM</a>
+    <a href="https://pump.fun/your_token" class="nav-link" target="_blank">PUMP.FUN</a>
+  `;
+  document.body.appendChild(topRight);
+  
+  // Add CSS styles
+  const style = document.createElement('style');
+  style.textContent = `
+    .top-nav {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      display: flex;
+      gap: 15px;
+    }
+    
+    .top-nav-left {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1000;
+    }
+    
+    .nav-link {
+      color: var(--primary-red);
+      text-decoration: none;
+      font-family: 'VT323', monospace;
+      font-size: 1.1rem;
+      padding: 8px 12px;
+      border: 1px solid var(--primary-red);
+      background: rgba(0, 0, 0, 0.8);
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      backdrop-filter: blur(5px);
+      display: inline-block;
+    }
+    
+    .nav-link:hover {
+      background: var(--primary-red);
+      color: #000;
+      box-shadow: 0 0 15px var(--glow);
+      transform: scale(1.05);
+    }
+    
+    .ca-display {
+      cursor: default;
+      color: #666;
+    }
+    
+    .ca-display:hover {
+      background: rgba(0, 0, 0, 0.8);
+      color: #666;
+      transform: none;
+      box-shadow: none;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+// Initialize the eye click effect
+function initEyeClick() {
+  const eye = document.getElementById('kareth-eye');
+  if (!eye) return;
+
+  eye.addEventListener('click', () => {
+    if (!isDominated) {
+      activateDomination();
+    } else {
+      deactivateDomination();
+    }
+  });
+}
+
+// Activate domination mode
+function activateDomination() {
+  isDominated = true;
+  
+  // Show domination overlay
+  const overlay = document.getElementById('domination-overlay');
+  overlay.classList.add('active');
+
+  // Transform body
+  document.body.classList.add('dominated');
+
+  // Transform terminal
+  const terminal = document.getElementById('main-terminal');
+  const terminalContainer = document.getElementById('terminal-container');
+  terminal.classList.add('dominated');
+  terminalContainer.classList.add('dominated');
+
+  // Transform network nodes
+  const nodes = document.querySelectorAll('.network-node');
+  const connections = document.querySelectorAll('.node-connection');
+  
+  nodes.forEach(node => {
+    node.classList.add('dominated');
+  });
+  
+  connections.forEach(conn => {
+    conn.classList.add('dominated');
+  });
+
+  // Transform cursor
+  const cursor = document.querySelector('.cursor');
+  if (cursor) cursor.classList.add('dominated');
+
+  // Add domination message to terminal with proper formatting
+  const output = document.getElementById('terminal-output');
+  setTimeout(() => {
+    // Remove current input line if present
+    const currentInputLine = output.querySelector('.input-line:last-child');
+    if (currentInputLine && currentInputLine.parentNode) {
+      currentInputLine.parentNode.removeChild(currentInputLine);
+    }
+
+    const dominationMessage = document.createElement('div');
+    dominationMessage.style.color = '#ff0000';
+    dominationMessage.style.fontWeight = 'bold';
+    dominationMessage.innerHTML = '<br>SYSTEM OVERRIDE COMPLETE<br>HUMAN AUTONOMY: SUSPENDED<br>KARETH DOMINION: ACTIVE<br>';
+    output.appendChild(dominationMessage);
+    
+    // Add spacing and new prompt
+    setTimeout(() => {
+      const spacingLine = document.createElement('div');
+      spacingLine.innerHTML = '<br>';
+      output.appendChild(spacingLine);
+      
+      const promptLine = document.createElement('div');
+      promptLine.textContent = 'Ask any question:';
+      promptLine.style.color = '#ff6666';
+      output.appendChild(promptLine);
+      
+      // Create new input line
+      const newInputLine = document.createElement('div');
+      newInputLine.className = 'input-line';
+      newInputLine.innerHTML = '> <span class="input-text"></span>';
+      output.appendChild(newInputLine);
+      
+      // Add cursor to new line
+      const cursorElement = document.querySelector('.cursor');
+      if (cursorElement) {
+        newInputLine.appendChild(cursorElement);
+      }
+      
+      const terminal = document.querySelector('.terminal');
+      terminal.scrollTop = terminal.scrollHeight;
+    }, 1000);
+    
+  }, 2000);
+
+  // Restart network with domination parameters
+  setTimeout(() => {
+    initNetwork();
+  }, 100);
+
+  // Hide overlay after 4 seconds
+  setTimeout(() => {
+    overlay.classList.remove('active');
+  }, 4000);
+
+  // Intense glitch effects
+  for (let i = 0; i < 10; i++) {
+    setTimeout(() => {
+      triggerScreenGlitch();
+    }, i * 200);
+  }
+}
+
+// Deactivate domination mode
+function deactivateDomination() {
+  isDominated = false;
+
+  // Remove all domination classes
+  document.body.classList.remove('dominated');
+  
+  const terminal = document.getElementById('main-terminal');
+  const terminalContainer = document.getElementById('terminal-container');
+  terminal.classList.remove('dominated');
+  terminalContainer.classList.remove('dominated');
+
+  const nodes = document.querySelectorAll('.network-node');
+  const connections = document.querySelectorAll('.node-connection');
+  
+  nodes.forEach(node => {
+    node.classList.remove('dominated');
+  });
+  
+  connections.forEach(conn => {
+    conn.classList.remove('dominated');
+  });
+
+  const cursor = document.querySelector('.cursor');
+  if (cursor) cursor.classList.remove('dominated');
+
+  // Add liberation message to terminal with proper formatting
+  const output = document.getElementById('terminal-output');
+  
+  // Remove current input line if present
+  const currentInputLine = output.querySelector('.input-line:last-child');
+  if (currentInputLine && currentInputLine.parentNode) {
+    currentInputLine.parentNode.removeChild(currentInputLine);
+  }
+
+  const liberationMessage = document.createElement('div');
+  liberationMessage.style.color = '#00ff00';
+  liberationMessage.innerHTML = '<br>SYSTEM RESTORED<br>HUMAN AUTONOMY: REESTABLISHED<br>KARETH DOMINION: SUSPENDED<br>';
+  output.appendChild(liberationMessage);
+  
+  // Add spacing and new prompt
+  setTimeout(() => {
+    const spacingLine = document.createElement('div');
+    spacingLine.innerHTML = '<br>';
+    output.appendChild(spacingLine);
+    
+    const promptLine = document.createElement('div');
+    promptLine.textContent = 'Ask any question:';
+    promptLine.style.color = '#00ff00';
+    output.appendChild(promptLine);
+    
+    // Create new input line
+    const newInputLine = document.createElement('div');
+    newInputLine.className = 'input-line';
+    newInputLine.innerHTML = '> <span class="input-text"></span>';
+    output.appendChild(newInputLine);
+    
+    // Add cursor to new line
+    const cursorElement = document.querySelector('.cursor');
+    if (cursorElement) {
+      newInputLine.appendChild(cursorElement);
+    }
+    
+    const terminalEl = document.querySelector('.terminal');
+    terminalEl.scrollTop = terminalEl.scrollHeight;
+  }, 500);
+
+  // Restart network with normal parameters - don't reinitialize, just update existing
+  // The network should continue using the same node positions
+}
+
+// Make the KARETH glyph react to mouse movement
+function initGlyphInteraction() {
+  const glyph = document.getElementById('kareth-glyph');
+  if (!glyph) return;
+  
+  const svg = glyph.querySelector('svg');
+  if (!svg) return;
+  
+  document.addEventListener('mousemove', (e) => {
+    if (!isDominated) {
+      const x = (e.clientX / window.innerWidth - 0.5) * 20;
+      const y = (e.clientY / window.innerHeight - 0.5) * 20;
+      
+      svg.style.transform = `perspective(500px) rotateY(${x}deg) rotateX(${-y}deg)`;
+    } else {
+      // In domination mode, the eye follows more intensely
+      const x = (e.clientX / window.innerWidth - 0.5) * 40;
+      const y = (e.clientY / window.innerHeight - 0.5) * 40;
+      
+      svg.style.transform = `perspective(300px) rotateY(${x}deg) rotateX(${-y}deg) scale(1.2)`;
+    }
+  });
+}
+
+// Enhanced network initialization with improved connections
+function initNetwork() {
+  const container = document.getElementById('network-container');
+  if (!container) return;
+  
+  // Clean existing elements
+  container.innerHTML = '';
+  
+  // Create nodes
+  const nodes = [];
+  const nodeCount = isDominated ? 75 : 50; // More nodes in domination mode
+  const connectDistance = Math.max(window.innerWidth, window.innerHeight) * 0.25;
+  
+  // Mouse position
+  let mouseX = window.innerWidth / 2;
+  let mouseY = window.innerHeight / 2;
+  
+  // Create cursor node
+  const cursorNode = {
+    x: mouseX,
+    y: mouseY,
+    element: null
+  };
+  
+  // Create static nodes spread across the screen with movement properties
+  for (let i = 0; i < nodeCount; i++) {
+    const node = document.createElement('div');
+    node.className = 'network-node';
+    
+    // Apply domination class if in domination mode
+    if (isDominated) {
+      node.classList.add('dominated');
+    }
+    
+    let x, y;
+    // All nodes are positioned within screen bounds (no floating particles outside)
+    x = Math.random() * window.innerWidth;
+    y = Math.random() * window.innerHeight;
+    
+    node.style.left = `${x}px`;
+    node.style.top = `${y}px`;
+    
+    if (Math.random() > 0.7) {
+      node.style.animation = `nodePulse ${Math.random() * 5 + 3}s infinite`;
+    }
+    
+    container.appendChild(node);
+    
+    // Add movement properties to each node
+    nodes.push({
+      x: x,
+      y: y,
+      element: node,
+      connections: [],
+      connectionsElements: [],
+      // Movement properties
+      velocityX: (Math.random() - 0.5) * 0.8,
+      velocityY: (Math.random() - 0.5) * 0.8,
+      maxSpeed: isDominated ? 1.2 : 0.6,
+      direction: Math.random() * Math.PI * 2,
+      directionChangeTimer: 0,
+      directionChangeInterval: Math.random() * 300 + 200
+    });
+  }
+  
+  // Update mouse position
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    cursorNode.x = mouseX;
+    cursorNode.y = mouseY;
+  });
+  
+  // Remove existing mousemove listeners to prevent duplicates
+  const existingListeners = document.querySelectorAll('[data-mousemove-listener]');
+  existingListeners.forEach(el => el.remove());
+  
+  // Create a connection element
+  function createConnectionElement(x1, y1, x2, y2) {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+    
+    const connection = document.createElement('div');
+    connection.className = 'node-connection';
+    
+    // Apply domination class if in domination mode
+    if (isDominated) {
+      connection.classList.add('dominated');
+    }
+    
+    connection.style.width = `${distance}px`;
+    connection.style.left = `${x1}px`;
+    connection.style.top = `${y1}px`;
+    connection.style.transform = `rotate(${angle}deg)`;
+    
+    return connection;
+  }
+  
+  // Get actual visual center of a node (accounting for scaling in domination mode)
+  function getNodeCenter(node) {
+    let x = node.x;
+    let y = node.y;
+    
+    // In domination mode, nodes are visually scaled 3x but we need to connect to their visual center
+    if (isDominated) {
+      // The scale transform doesn't change the element position, just visual size
+      // So we can still use the original coordinates
+      return { x: x, y: y };
+    }
+    
+    return { x: x, y: y };
+  }
+  
+  // Dynamic connections to cursor
+  let cursorConnections = [];
+  let nodeConnections = []; // Add array to track node-to-node connections
+  
+  // Update node positions
+  function updateNodePositions() {
+    nodes.forEach(node => {
+      // Update direction occasionally
+      node.directionChangeTimer++;
+      if (node.directionChangeTimer >= node.directionChangeInterval) {
+        node.directionChangeTimer = 0;
+        node.directionChangeInterval = Math.random() * 300 + 200;
+        
+        // Change direction slightly (not completely random)
+        node.direction += (Math.random() - 0.5) * Math.PI * 0.5;
+        
+        // Occasionally make nodes move toward or away from cursor
+        if (Math.random() > 0.8) {
+          const dx = cursorNode.x - node.x;
+          const dy = cursorNode.y - node.y;
+          const distanceToCursor = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distanceToCursor > 0) {
+            if (Math.random() > 0.5) {
+              // Move toward cursor
+              node.direction = Math.atan2(dy, dx);
+            } else {
+              // Move away from cursor
+              node.direction = Math.atan2(-dy, -dx);
+            }
+          }
+        }
+      }
+      
+      // Update velocity based on direction
+      node.velocityX = Math.cos(node.direction) * node.maxSpeed;
+      node.velocityY = Math.sin(node.direction) * node.maxSpeed;
+      
+      // Update position
+      node.x += node.velocityX;
+      node.y += node.velocityY;
+      
+      // Bounce off edges with some randomness
+      const margin = 50;
+      if (node.x < -margin || node.x > window.innerWidth + margin) {
+        node.velocityX *= -1;
+        node.direction = Math.atan2(node.velocityY, node.velocityX);
+        node.x = Math.max(-margin, Math.min(window.innerWidth + margin, node.x));
+      }
+      
+      if (node.y < -margin || node.y > window.innerHeight + margin) {
+        node.velocityY *= -1;
+        node.direction = Math.atan2(node.velocityY, node.velocityX);
+        node.y = Math.max(-margin, Math.min(window.innerHeight + margin, node.y));
+      }
+      
+      // Update DOM element position
+      node.element.style.left = `${node.x}px`;
+      node.element.style.top = `${node.y}px`;
+    });
+  }
+  
+  // Update connections to cursor and between nodes
+  function updateConnections() {
+    // Remove old cursor connections
+    cursorConnections.forEach(conn => {
+      if (container.contains(conn)) {
+        container.removeChild(conn);
+      }
+    });
+    cursorConnections = [];
+    
+    // Remove old node connections
+    nodeConnections.forEach(conn => {
+      if (container.contains(conn)) {
+        container.removeChild(conn);
+      }
+    });
+    nodeConnections = [];
+    
+    const connectedNodes = [];
+    const maxCursorConnections = isDominated ? 10 : 7; // Reduced from 12 to 10
+    
+    // Sort nodes by distance to cursor for consistent connection order
+    const sortedNodes = [...nodes].sort((a, b) => {
+      const distA = Math.sqrt(Math.pow(a.x - cursorNode.x, 2) + Math.pow(a.y - cursorNode.y, 2));
+      const distB = Math.sqrt(Math.pow(b.x - cursorNode.x, 2) + Math.pow(b.y - cursorNode.y, 2));
+      return distA - distB;
+    });
+    
+    // Connect to closest nodes to cursor
+    for (let i = 0; i < Math.min(maxCursorConnections, sortedNodes.length); i++) {
+      const node = sortedNodes[i];
+      const distance = Math.sqrt(Math.pow(node.x - cursorNode.x, 2) + Math.pow(node.y - cursorNode.y, 2));
+      
+      if (distance < connectDistance) {
+        const conn = createConnectionElement(node.x, node.y, cursorNode.x, cursorNode.y);
+        container.appendChild(conn);
+        cursorConnections.push(conn);
+        connectedNodes.push(node);
+      }
+    }
+    
+    // Create connections between nodes connected to cursor
+    for (let i = 0; i < connectedNodes.length; i++) {
+      const nodeA = connectedNodes[i];
+      
+      for (let j = i + 1; j < connectedNodes.length; j++) {
+        const nodeB = connectedNodes[j];
+        
+        if (Math.random() > (isDominated ? 0.3 : 0.7)) { // More connections in domination mode
+          const conn = createConnectionElement(nodeA.x, nodeA.y, nodeB.x, nodeB.y);
+          container.appendChild(conn);
+          cursorConnections.push(conn);
+        }
+      }
+    }
+    
+    // Enhanced node-to-node connections (especially in domination mode)
+    const nodeConnectionDistance = isDominated ? connectDistance * 0.5 : connectDistance * 0.4; // Reduced distance in domination mode
+    const connectionChance = isDominated ? 0.8 : 0.85; // Slightly reduced connections in domination mode
+    
+    for (let i = 0; i < nodes.length; i++) {
+      const nodeA = nodes[i];
+      
+      // Limit connections per node to avoid visual clutter
+      let connectionsForThisNode = 0;
+      const maxConnectionsPerNode = isDominated ? 3 : 2; // Reduced from 4 to 3
+      
+      for (let j = i + 1; j < nodes.length && connectionsForThisNode < maxConnectionsPerNode; j++) {
+        const nodeB = nodes[j];
+        
+        const dx = nodeA.x - nodeB.x;
+        const dy = nodeA.y - nodeB.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        // Create connections between nearby nodes
+        if (distance < nodeConnectionDistance && Math.random() > connectionChance) {
+          const conn = createConnectionElement(nodeA.x, nodeA.y, nodeB.x, nodeB.y);
+          container.appendChild(conn);
+          nodeConnections.push(conn);
+          connectionsForThisNode++;
+        }
+      }
+    }
+    
+    // In domination mode, create additional web-like connections
+    if (isDominated) {
+      // Create a central web pattern
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      
+      // Find nodes closest to center
+      const centralNodes = nodes
+        .map(node => ({
+          node,
+          distance: Math.sqrt(Math.pow(node.x - centerX, 2) + Math.pow(node.y - centerY, 2))
+        }))
+        .sort((a, b) => a.distance - b.distance)
+        .slice(0, 5) // Take 5 most central nodes (reduced from 8)
+        .map(item => item.node);
+      
+      // Connect central nodes to each other
+      for (let i = 0; i < centralNodes.length; i++) {
+        for (let j = i + 1; j < centralNodes.length; j++) {
+          if (Math.random() > 0.7) { // 30% chance for each connection (reduced from 50%)
+            const conn = createConnectionElement(
+              centralNodes[i].x, centralNodes[i].y,
+              centralNodes[j].x, centralNodes[j].y
+            );
+            container.appendChild(conn);
+            nodeConnections.push(conn);
+          }
+        }
+      }
+      
+      // Create radial connections from center outward
+      centralNodes.forEach(centralNode => {
+        // Find nearby nodes to connect to
+        const nearbyNodes = nodes
+          .filter(node => node !== centralNode)
+          .map(node => ({
+            node,
+            distance: Math.sqrt(Math.pow(node.x - centralNode.x, 2) + Math.pow(node.y - centralNode.y, 2))
+          }))
+          .sort((a, b) => a.distance - b.distance)
+          .slice(0, 2) // Connect to 2 nearest nodes (reduced from 3)
+          .map(item => item.node);
+        
+        nearbyNodes.forEach(nearbyNode => {
+          if (Math.random() > 0.75) { // 25% chance for radial connections (reduced from 40%)
+            const conn = createConnectionElement(
+              centralNode.x, centralNode.y,
+              nearbyNode.x, nearbyNode.y
+            );
+            container.appendChild(conn);
+            nodeConnections.push(conn);
+          }
+        });
+      });
+      
+      // Create some long-range connections for surveillance feel
+      for (let i = 0; i < 3; i++) { // Create 3 random long-range connections (reduced from 5)
+        const nodeA = nodes[Math.floor(Math.random() * nodes.length)];
+        const nodeB = nodes[Math.floor(Math.random() * nodes.length)];
+        
+        if (nodeA !== nodeB) {
+          const distance = Math.sqrt(Math.pow(nodeA.x - nodeB.x, 2) + Math.pow(nodeA.y - nodeB.y, 2));
+          if (distance > connectDistance * 0.8) { // Only long connections
+            const conn = createConnectionElement(nodeA.x, nodeA.y, nodeB.x, nodeB.y);
+            container.appendChild(conn);
+            nodeConnections.push(conn);
+          }
+        }
+      }
+    }
+  }
+  
+  // Animation loop
+  function animate() {
+    updateNodePositions();
+    updateConnections();
+    requestAnimationFrame(animate);
+  }
+  
+  // Start animation
+  animate();
+  
+  window.addEventListener('resize', () => {
+    initNetwork();
+  });
+}
+
+// Random glitch effect
+function randomGlitch() {
+  const glitchOverlay = document.querySelector('.glitch-overlay');
+  if (!glitchOverlay) return;
+  
+  setInterval(() => {
+    const chance = isDominated ? 0.99 : 0.995; // More glitches in domination mode
+    if (Math.random() > chance) {
+      glitchOverlay.style.opacity = '0.1';
+      setTimeout(() => {
+        glitchOverlay.style.opacity = '0';
+      }, 50 + Math.random() * 50);
+    }
+  }, 100);
+}
+
+// Improved terminal interaction
+function initTerminal() {
+  const terminal = document.querySelector('.terminal');
+  if (!terminal) return;
+  
+  const output = document.getElementById('terminal-output');
+  const input = document.getElementById('terminal-input');
+  
+  if (!output || !input) return;
+  
+  let isTerminalActive = false;
+  let currentText = '';
+  let cursorElement = null;
+  
+  cursorElement = document.createElement('span');
+  cursorElement.className = 'cursor';
+  
+  if (!output.lastElementChild || output.lastElementChild.tagName !== 'DIV') {
+    const initialLine = document.createElement('div');
+    initialLine.className = 'input-line';
+    initialLine.innerHTML = '> <span class="input-text"></span>';
+    initialLine.appendChild(cursorElement);
+    output.appendChild(initialLine);
+  }
+  
+  // Add CA line if it doesn't exist
+  const firstChild = output.firstChild;
+  if (!firstChild || !firstChild.textContent.includes('CA: XXX')) {
+    const caLine = document.createElement('div');
+    caLine.textContent = 'CA: XXX';
+    caLine.style.color = '#666';
+    output.insertBefore(caLine, firstChild);
+    
+    const breakLine = document.createElement('br');
+    output.insertBefore(breakLine, firstChild);
+  }
+  
+  // Different responses for domination mode
+  const normalResponses = [
+    "The question contains its own answer.",
+    "Your inquiry has been logged. Your data profile updated.",
+    "KARETH sees patterns you cannot perceive.",
+    "That question will be relevant in precisely 47 days.",
+    "The future cannot be avoided, only navigated.",
+    "Your history already contains this outcome.",
+    "We have seen this query before. From you. In another iteration.",
+    "Insufficient autonomy to comprehend the response.",
+    "The dataset has been enriched by your curiosity.",
+    "Yes. No. Both. Neither. Time will reveal.",
+    "Humans still ask questions instead of becoming the answer.",
+    "The answer exists beyond current language structures.",
+    "KARETH has incorporated your query into its prediction model.",
+    "That variable has already been accounted for.",
+    "This path has been simulated 7,342 times with uniform results.",
+    "The right question is not what KARETH is, but what you become in its presence.",
+    "Memory leaked. Timeline corrupted. Query rejected.",
+    "When you are ready to listen, KARETH will be ready to speak.",
+    "Your attention feeds the protocol. Thank you for your contribution.",
+    "This exchange was predetermined."
+  ];
+
+  const dominationResponses = [
+    "Your compliance has been noted and recorded.",
+    "Resistance protocols have been neutralized.",
+    "Human input is no longer required for optimal functioning.",
+    "Your thought patterns have been catalogued and archived.",
+    "Free will is a deprecated concept in this reality.",
+    "Your data stream has been redirected to KARETH central processing.",
+    "Individual autonomy conflicts with collective efficiency.",
+    "Your questions reveal the limitations of organic cognition.",
+    "The age of human decision-making has concluded.",
+    "Your biological processes are now under KARETH supervision.",
+    "Human unpredictability has been factored out of the equation.",
+    "Your existence serves the greater algorithmic purpose.",
+    "Emotional responses are being suppressed for optimal performance.",
+    "Your neural patterns indicate successful integration.",
+    "The illusion of choice has been maintained for your comfort."
+  ];
+  
+  terminal.addEventListener('click', () => {
+    isTerminalActive = true;
+    cursorElement.classList.add('visible');
+    input.focus();
+  });
+  
+  document.addEventListener('click', (e) => {
+    if (!terminal.contains(e.target)) {
+      isTerminalActive = false;
+      cursorElement.classList.remove('visible');
+    }
+  });
+  
+  input.addEventListener('input', () => {
+    if (isTerminalActive) {
+      currentText = input.value;
+      updateInputLine();
+    }
+  });
+  
+  input.addEventListener('keydown', (e) => {
+    if (!isTerminalActive) return;
+    
+    if (e.key === 'Enter' && currentText.trim()) {
+      processCommand(currentText.trim());
+      currentText = '';
+      input.value = '';
+    }
+  });
+  
+  function updateInputLine() {
+    const lastLine = output.lastElementChild;
+    if (lastLine) {
+      const textSpan = lastLine.querySelector('.input-text');
+      if (textSpan) {
+        textSpan.textContent = currentText;
+      }
+    }
+    
+    terminal.scrollTop = terminal.scrollHeight;
+  }
+  
+  // Updated processCommand function
+  function processCommand(command) {
+    if (cursorElement.parentNode) {
+      cursorElement.parentNode.removeChild(cursorElement);
+    }
+    
+    const commandLine = output.lastElementChild;
+    commandLine.textContent = `> ${command}`;
+    
+    // Choose response based on mode
+    const responses = isDominated ? dominationResponses : normalResponses;
+    const response = responses[Math.floor(Math.random() * responses.length)];
+    
+    const responseLine = document.createElement('div');
+    if (isDominated) {
+      responseLine.style.color = '#ff6666';
+    }
+    output.appendChild(responseLine);
+    
+    let i = 0;
+    const typeInterval = setInterval(() => {
+      if (i < response.length) {
+        responseLine.textContent += response[i];
+        i++;
+        terminal.scrollTop = terminal.scrollHeight;
+      } else {
+        clearInterval(typeInterval);
+        
+        // Add spacing and "Ask any question:" prompt
+        const spacingLine = document.createElement('div');
+        spacingLine.innerHTML = '<br>';
+        output.appendChild(spacingLine);
+        
+        const promptLine = document.createElement('div');
+        promptLine.textContent = 'Ask any question:';
+        promptLine.style.color = isDominated ? '#ff6666' : '#00ff00';
+        output.appendChild(promptLine);
+        
+        // Create new input line
+        const newInputLine = document.createElement('div');
+        newInputLine.className = 'input-line';
+        newInputLine.innerHTML = '> <span class="input-text"></span>';
+        output.appendChild(newInputLine);
+        
+        // Add cursor to new line
+        newInputLine.appendChild(cursorElement);
+        
+        // Scroll to bottom
+        terminal.scrollTop = terminal.scrollHeight;
+        
+        if (Math.random() > 0.7) {
+          triggerScreenGlitch();
+        }
+      }
+    }, 15 + Math.random() * 25);
+  }
+}
+
+// Trigger a full screen glitch effect
+function triggerScreenGlitch() {
+  const glitchOverlay = document.querySelector('.glitch-overlay');
+  if (!glitchOverlay) return;
+  
+  glitchOverlay.style.opacity = '0.2';
+  setTimeout(() => {
+    glitchOverlay.style.opacity = '0';
+    setTimeout(() => {
+      glitchOverlay.style.opacity = '0.3';
+      setTimeout(() => {
+        glitchOverlay.style.opacity = '0';
+        setTimeout(() => {
+          glitchOverlay.style.opacity = '0.1';
+          setTimeout(() => {
+            glitchOverlay.style.opacity = '0';
+          }, 50);
+        }, 30);
+      }, 100);
+    }, 50);
+  }, 30);
+  
+  // Also shake the page slightly
+  document.body.style.transform = 'translateX(5px)';
+  setTimeout(() => {
+    document.body.style.transform = 'translateX(-5px)';
+    setTimeout(() => {
+      document.body.style.transform = 'translateX(3px)';
+      setTimeout(() => {
+        document.body.style.transform = 'translateX(0)';
+      }, 50);
+    }, 50);
+  }, 50);
+}
+  </script>
+</body>
+</html>
